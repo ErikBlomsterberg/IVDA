@@ -2,7 +2,7 @@
 
 ### Authors
 
-Erik Blomsterberg, Varun G R, Jorge Ortiz, Tamanna Kumavat
+Erik Blomsterberg, Varun Ghat Ravikumar, Jorge Ortiz, Tamanna Kumavat
 
 ### General info
 
