@@ -17,20 +17,35 @@ def start_page():
 
 @all_routes.route('/model-train', methods=['PUT'])
 def train_model():
-    x = np.array([10,5,20]).reshape(1,-1)
-    id = request.json['id']
-    #create model input from csv file 
-    #write rating in csv file 
-    y = request.json['rating']
-    y = np.array([y])
+    
+    #target variable
+    y =  np.array([request.json['rating']])
+
+    #feature values
+    id = 73282 #request.json['id']
+    row = df.loc[df['id'] == id]
+    row = row[['latitude', 'longitude', 'price']] 
+    x = row.to_numpy()
+
+    #train model
     update_model(x,y)
+    
+    #write rating in csv file
+    row_id = df.index[df['id'] == id][0]
+    df.at[row_id, 'rating'] = request.json['rating']
+    df.to_csv("Data/zurich.csv")
+
     return jsonify()
 
 @all_routes.route('/model-predict', methods=['PUT'])
 def model_predict():
-    x = np.array([10,5,20]).reshape(1,-1)
+   
     #loop all apartments and add predicted rating 
-    prediction = predict_rating(x)[0]
+    for index, row in df.iterrows():
+        row = row[['latitude', 'longitude', 'price']]
+        x = row.to_numpy().reshape(1,-1)
+        df.at[index, 'rating'] = predict_rating(x)[0]
+    df.to_csv("Data/zurich.csv")
 
     csv_encoding = 'utf-8'
     data = []

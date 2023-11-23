@@ -4,9 +4,7 @@ from sklearn.linear_model import LinearRegression, SGDRegressor
 model = SGDRegressor()
 
 def update_model(x, y):
-
     model.partial_fit(x, y)
-
     return 
 
 def predict_rating(x):
