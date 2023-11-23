@@ -10,24 +10,15 @@ export default {
     StarRating
   },
   methods: {
-    async setRating(rating){
+    setRating(rating){
       this.rating=rating;
-      const foo = await fetch("http://127.0.0.1:5000/model-train",
+      fetch("http://127.0.0.1:5000/model-train",
                               {method: "PUT",
                               headers: {
                                         'Content-Type': 'application/json'
                               }, 
                               body: JSON.stringify({rating: rating}),
                               })
-      const bar = await fetch("http://127.0.0.1:5000/model-predict",
-                              {method: "PUT",
-                              headers: {
-                                        'Content-Type': 'application/json'
-                              }, 
-                              body: JSON.stringify({rating: rating}),
-                              })
-
-      console.log(foo, bar)
     }
     
   },
