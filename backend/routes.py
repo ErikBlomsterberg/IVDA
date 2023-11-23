@@ -2,7 +2,10 @@ from flask import Blueprint, request, jsonify
 import pandas as pd 
 import numpy as np
 from model import update_model, predict_rating
-df = pd.read_csv('Data/zurich.csv')
+import csv
+
+csv_file_path = 'Data/zurich.csv'
+df = pd.read_csv(csv_file_path)
 
 
 all_routes = Blueprint('all_routes', __name__)
@@ -15,6 +18,9 @@ def start_page():
 @all_routes.route('/model-train', methods=['PUT'])
 def train_model():
     x = np.array([10,5,20]).reshape(1,-1)
+    id = request.json['id']
+    #create model input from csv file 
+    #write rating in csv file 
     y = request.json['rating']
     y = np.array([y])
     update_model(x,y)
@@ -23,6 +29,15 @@ def train_model():
 @all_routes.route('/model-predict', methods=['PUT'])
 def model_predict():
     x = np.array([10,5,20]).reshape(1,-1)
+    #loop all apartments and add predicted rating 
     prediction = predict_rating(x)[0]
-    res = jsonify({'prediction':prediction})
-    return res
+
+    csv_encoding = 'utf-8'
+    data = []
+    with open(csv_file_path, 'r', encoding=csv_encoding) as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        for row in csv_reader:
+
+            data.append(row)
+    
+    return jsonify(data)
