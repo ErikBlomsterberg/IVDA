@@ -1,14 +1,20 @@
 <template>
-  <HelloWorld msg="The Vizzards"/>
+  <div>
+    <HelloWorld msg="The Vizzards"/>
+    <ApartmentRating/>
+  </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import ApartmentRating from './components/ApartmentRating.vue'
+
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    ApartmentRating
   }
 }
 </script>
