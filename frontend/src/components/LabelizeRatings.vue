@@ -124,8 +124,6 @@
       updateInput(props) {
       this.rating = props
       this.progress = this.progress + 10
-      console.log(this.CurrentApartment[0].id)
-      console.log(this.rating)
       this.trainData(this.CurrentApartment[0].id, this.rating) 
       if (this.progress >= 100){
         this.showSubmit = true
@@ -148,7 +146,7 @@
   fetch("http://127.0.0.1:5000/model-train", requestOptions)
     .then(response => response.json())
     .then(data => (this.updatedAt = data.updatedAt));
-  this.rating = this.CurrentApartment[0].rating
+    //  this.rating = this.CurrentApartment[0].rating
 },
   submit() {
     const requestOptions = {
