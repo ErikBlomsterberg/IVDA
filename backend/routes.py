@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 
 from flask import Blueprint, request, jsonify
@@ -7,6 +8,15 @@ from model import update_model, predict_rating
 import csv
 
 csv_file_path = 'Data/data.csv'
+=======
+from flask import Blueprint, request, jsonify
+import pandas as pd 
+import numpy as np
+from model import update_model, predict_rating
+import csv
+
+csv_file_path = 'Data/zurich.csv'
+>>>>>>> 4567f9efa8486e40e055b29926ba4f69fc82fb39
 df = pd.read_csv(csv_file_path)
 
 #solution 2
@@ -34,7 +44,10 @@ def start_page():
 @all_routes.route('/model-train', methods=['PUT'])
 def train_model():
 
+@all_routes.route('/model-train', methods=['PUT'])
+def train_model():
 
+<<<<<<< HEAD
     #**************** Solution 1 *****************
     #target variable
     y =  np.array([request.json['rating']])
@@ -50,6 +63,16 @@ def train_model():
     row = df.loc[df['id'] == int(ids)]
     # print('type', type(ids))
     # print('type', type(df['id']))
+=======
+
+    #**************** Solution 1 *****************
+    #target variable
+    y =  np.array([request.json['rating']])
+
+    #feature values
+    id = 73282 #request.json['id']
+    row = df.loc[df['id'] == id]
+>>>>>>> 4567f9efa8486e40e055b29926ba4f69fc82fb39
     row = row[['latitude', 'longitude', 'price']] 
     x = row.to_numpy()
 
@@ -57,7 +80,11 @@ def train_model():
     update_model(x,y)
     
     #write rating to csv file
+<<<<<<< HEAD
     row_id = df.index[df['id'] == int(ids)][0]
+=======
+    row_id = df.index[df['id'] == id][0]
+>>>>>>> 4567f9efa8486e40e055b29926ba4f69fc82fb39
     df.at[row_id, 'rating'] = request.json['rating']
     df.to_csv(csv_file_path)
     
@@ -81,7 +108,11 @@ def train_model():
     update_model(X_array,Y)
     '''
 
+<<<<<<< HEAD
     return jsonify("Rating saved for id", ids)
+=======
+    return jsonify()
+>>>>>>> 4567f9efa8486e40e055b29926ba4f69fc82fb39
 
 @all_routes.route('/model-predict', methods=['PUT'])
 def model_predict():
