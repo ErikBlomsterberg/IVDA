@@ -69,6 +69,7 @@
       :model-value=rating
       active-color="amber"
       @update:modelValue="updateInput"
+      @click:modelValue="updateInput"
     />
     <v-spacer></v-spacer>
       <v-btn
@@ -118,12 +119,14 @@
         this.ApartmentData.push(apartment)
       })
       this.CurrentApartment.push(this.ApartmentData[0])
-      console.log(this.ApartmentData)
-      console.log(this.progress)
+      this.rating = this.CurrentApartment[0].rating
     },
       updateInput(props) {
-      this.rating = props + 1
+      this.rating = props
       this.progress = this.progress + 10
+      console.log(this.CurrentApartment[0].id)
+      console.log(this.rating)
+      this.trainData(this.CurrentApartment[0].id, this.rating) 
       if (this.progress >= 100){
         this.showSubmit = true
         this.progress == 100
@@ -135,7 +138,26 @@
       this.CurrentApartment.push(this.ApartmentData[this.progress/10 ])
       }
   },
+  trainData(id, rating) {
+  // Simple PUT request with a JSON body using fetch
+  const requestOptions = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id, rating: rating })
+  };
+  fetch("http://127.0.0.1:5000/model-train", requestOptions)
+    .then(response => response.json())
+    .then(data => (this.updatedAt = data.updatedAt));
+  this.rating = this.CurrentApartment[0].rating
+},
   submit() {
+    const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  };
+  fetch("http://127.0.0.1:5000/model-predict", requestOptions)
+    .then(response => response.json())
+    .then(data => (this.updatedAt = data.updatedAt));
     this.$emit('switchComponent',true)
   }
   }
