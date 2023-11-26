@@ -121,7 +121,8 @@
       this.CurrentApartment.push(this.ApartmentData[0])
       this.rating = this.CurrentApartment[0].rating
     },
-      updateInput(props) {
+    
+    updateInput(props) {
       this.rating = props
       this.progress = this.progress + 10
       console.log(this.CurrentApartment[0].id)
