@@ -54,5 +54,4 @@ def model_predict():
     y_pred = np.clip(y_pred, 1, 5)
     df['rating'] = y_pred
     # TODO : Replace ids with existing rating from the user.
-    # print(jsonify(df.reset_index()))
     return json.loads(df.reset_index().to_json(orient="records"))

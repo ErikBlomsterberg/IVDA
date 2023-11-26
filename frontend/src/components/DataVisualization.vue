@@ -48,7 +48,8 @@
   export default {
     name: 'DataVisualization',
     props: {
-      msg: String
+      msg: String,
+      availability: String
     },
     data: () => ({
         loading: false,

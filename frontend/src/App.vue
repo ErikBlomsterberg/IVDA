@@ -23,8 +23,13 @@
       :items="['Private room', 'Entire home/apt', 'Hotel room']"
       @update:modelValue="selectedRoomType"
     ></v-select>
+    <v-select style="width:70%;margin-left: 20px;"
+      label="Select Neighbourhood Group"
+      :items="['Kreis 1', 'Kreis 2', 'Kreis 3', 'Kreis 4','Kreis 5', 'Kreis 6', 'Kreis 7', 'Kreis 8','Kreis 9', 'Kreis 10', 'Kreis 11', 'Kreis 12']"
+      @update:modelValue="selectedNeighbourhoodGroup"
+    ></v-select>
     <v-text-field style="width:70%;margin-left: 20px;" clearable 
-    label="Minimum Nights" variant="outlined" @update:modelValue="selectedMinimumNights"></v-text-field>
+    label="Maximum Nights" variant="outlined" @update:modelValue="selectedMaximumNights"></v-text-field>
     <!-- <v-range-slider style="width:70%;margin-left: 20px;"
     v-model="value"
     step="10"
@@ -35,9 +40,16 @@
           <v-btn
             class="bg-green-darken-1"
             variant="text"
-            @click="dialog = false"
+            @click="save"
           >
             Save
+          </v-btn>
+          <v-btn
+            class="bg-red-darken-1"
+            variant="text"
+            @click="dialog = false"
+          >
+            Reset
           </v-btn>
           <v-btn
           class="bg-grey-lighten-2"
@@ -49,36 +61,44 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  <!-- <LabelizeRatings v-if="showVisualization === false" @switchComponent="switchComponent($event)" msg="The Vizzards"/>
-  <DataVisualization v-if="showVisualization === true" msg="The Vizzards"/> -->
   <div>
-    <router-view></router-view>
+    <router-view ></router-view>
   </div>
 </template>
 
 <script>
 // import LabelizeRatings from './components/LabelizeRatings.vue'
 // import DataVisualization from './components/DataVisualization.vue'
+// import Vue from 'vue';
+
+// export const EventBus = new Vue();
 
 export default {
   name: 'App',
   components: {
-    // LabelizeRatings,
-    // DataVisualization
-  },
+},
   data: () => ({
     dialog: false,
-    value: [20, 40],
+    roomType: '',
+    neighbourhoodGroup: '',
+    return: {
+      availability: 'test',
+    }
     
   }),
   methods: {
     selectedRoomType(props) {
-      console.log(props)
+      this.roomType = props
     },
-    selectedMinimumNights(props) {
-      console.log(props)
-    }
-  }
+    selectedMaximumNights(props) {
+      this.availability = props
+    },
+    selectedNeighbourhoodGroup(props) {
+      this.neighbourhoodGroup = props
+    },
+    save(){
+}
+  },
 }
 </script>
 

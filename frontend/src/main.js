@@ -18,7 +18,7 @@ const vuetify = createVuetify({
 
 const routes = [
   { path: '/',name: 'LabelizeRatings', component: LabelizeRatings },
-  { path: '/visualization', name: 'DataVisualization', component: DataVisualization },
+  { path: '/visualization', name: 'DataVisualization', component: DataVisualization},
 ]
 
 const router = createRouter({
