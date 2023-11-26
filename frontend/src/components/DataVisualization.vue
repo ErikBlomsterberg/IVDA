@@ -8,7 +8,9 @@
      <v-col cols="4">
        <v-row no-gutters>
          <v-col cols="12">
-          <v-card class="pa-2 ma-2" height="180px" id="histContainer1"> Price </v-card>
+          <v-card-text>Filter by price</v-card-text>
+          <v-card class="pa-2 ma-2" height="150px" id="histContainer1"> Price </v-card>
+          
           <v-range-slider 
             id="price_slider" 
             color="green" 
@@ -22,7 +24,8 @@
        </v-row>
        <v-row no-gutters >
          <v-col cols="12">
-           <v-card class="pa-2 ma-2" height="180px" id="histContainer2"> No of reviews
+          <v-card-text>Filter by "No of reviews"</v-card-text>
+           <v-card class="pa-2 ma-2" height="150px" id="histContainer2"> No of reviews
            </v-card>
            
            <v-range-slider 
@@ -39,7 +42,9 @@
        </v-row>
        <v-row no-gutters >
          <v-col cols="12">
-           <v-card class="pa-2 ma-2" height="180px" id="histContainer3"> Min no of days </v-card>
+          <v-card-text>Filter by "Min no of days"</v-card-text>
+           <v-card class="pa-2 ma-2" height="150px" id="histContainer3"> Min no of days </v-card>
+           
            <v-range-slider 
             id="minnights_slider" 
             color="orange"
