@@ -35,7 +35,7 @@
     },
     data: () => ({
         loading: false,
-        elevations: [0, 4, 8, 12, 16, 20],
+        predictedData: []
       }),
   
     mounted() {
@@ -44,16 +44,16 @@
   
     methods: {
       async fetchData() {
-        // var reqUrl = 'http://127.0.0.1:5000/apartments'
-        // console.log("ReqURL " + reqUrl)
-        // const response = await fetch(reqUrl)
-        // const responseData = await response.json();
-        // responseData.forEach((apartment) => {
-        //   this.ApartmentData.push(apartment)
-        // })
-        // this.CurrentApartment.push(this.ApartmentData[0])
-        // console.log(this.ApartmentData)
-        // console.log(this.progress)
+        const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      };
+        const response =  await fetch("http://127.0.0.1:5000/model-predict", requestOptions)
+        const responseData =  await response.json();
+        responseData.forEach((apartment) => {
+            this.predictedData.push(apartment)
+      })
+      console.log(this.predictedData)
       }
     }
     }
