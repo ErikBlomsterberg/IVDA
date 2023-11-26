@@ -1,4 +1,4 @@
-import os
+import json
 
 from flask import Blueprint, request, jsonify
 import pandas as pd 
@@ -29,61 +29,14 @@ def start_page():
                 break
     return jsonify(data)
 
+
 @all_routes.route('/model-train', methods=['PUT'])
 def train_model():
     global modified_ratings
-
-    #**************** Solution 1 *****************
-    #target variable
-    print(request.json)
     modified_ratings.update({int(request.json['id']): int(request.json['rating'])})
 
-    # modified_ratings.update(request.json)
-    # y =  np.array([request.json['rating']])
-    # json_data = request.get_json()
-    # ids = json_data['id']
-    # rating = request.json['rating']
-    # print(y)
-    # print(request.json['rating'])
-    # print(request.json['id'])
-
-    #feature values
-    # id = request.json['id']
-    # row = df.loc[df['id'] == int(ids)]
-    # print('type', type(ids))
-    # print('type', type(df['id']))
-    # row = row[['latitude', 'longitude', 'price']] 
-    # x = row.to_numpy()
-
-    #train model
-    # update_model(x,y)
-    
-    #write rating to csv file
-    # row_id = df.index[df['id'] == int(ids)][0]
-    # df.at[row_id, 'rating'] = request.json['rating']
-    # df.to_csv(csv_file_path)
-    
-
-    '''
-    #**************** Solution 2 *****************
-    #target variable
-    y =  [request.json['rating']]
-    Y_list.append(y)
-    Y = np.array(Y_list)
-
-    #feature values
-    id = 73282 #request.json['id']
-    row = df.loc[df['id'] == id]
-    row = row[['latitude', 'longitude', 'price']] 
-    row = np.array(row)
-    X_list.append(row[0])
-    X_array = np.array(X_list)
-
-    #train model
-    update_model(X_array,Y)
-    '''
-
     return jsonify("Rating saved for id", request.json['id'])
+
 
 # When clicking submit
 @all_routes.route('/model-predict', methods=['POST'])
@@ -101,5 +54,5 @@ def model_predict():
     y_pred = np.clip(y_pred, 1, 5)
     df['rating'] = y_pred
     # TODO : Replace ids with existing rating from the user.
-    
-    return jsonify(df.reset_index().to_json(orient="records"))
+    # print(jsonify(df.reset_index()))
+    return json.loads(df.reset_index().to_json(orient="records"))

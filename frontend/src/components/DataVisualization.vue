@@ -4,7 +4,6 @@
      <v-col cols="8">
        <v-sheet class="pa-2 ma-2" height="720px" id="mapContainer"> Level 1: .v-col-8 </v-sheet>
      </v-col>
-
      <v-col cols="4">
        <v-row no-gutters>
          <v-col cols="12">
@@ -54,6 +53,7 @@
    data: () => ({
        loading: false,
        elevations: [0, 4, 8, 12, 16, 20],
+       predictedData: [],
 
      }),
  
@@ -96,25 +96,25 @@
        console.log(bounds)
      })
      },
- 
-   methods: {
-    async fetchData() {
-      //var reqUrl = 'http://127.0.0.1:5000/apartments'
-      //console.log("ReqURL " + reqUrl)
-      //const response = await fetch(reqUrl)
-      //const responseData = await response.json();
-      //responseData.forEach((apartment) => {
-      //  this.ApartmentData.push(apartment)
-      //})
-      //this.CurrentApartment.push(this.ApartmentData[0])
-      //this.rating = this.CurrentApartment[0].rating
-    },
-   }
+    methods: {
+      async fetchData() {
+        const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      };
+        const response =  await fetch("http://127.0.0.1:5000/model-predict", requestOptions)
+        const responseData =  await response.json();
+        responseData.forEach((apartment) => {
+            this.predictedData.push(apartment)
+      })
+      console.log(this.predictedData)
+      }
+    }
+    }
+  
   }
  
  </script>
- 
-
 
  <!-- Add "scoped" attribute to limit CSS to this component only -->
  <style scoped>
