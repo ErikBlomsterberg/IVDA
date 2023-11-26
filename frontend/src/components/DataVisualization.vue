@@ -49,7 +49,9 @@
     name: 'DataVisualization',
     props: {
       msg: String,
-      availability: String
+      availability: String,
+      roomType: String,
+      neighbourhoodGroup: String
     },
     data: () => ({
         loading: false,
@@ -58,7 +60,24 @@
         number_of_reviews: [],
         minimum_nights: [],
         price: [],
+        availabilitys: '',
+        roomTypes: '',
+        neighbourhoodGroups: ''
       }),
+  watch: {
+    availability(newMyProp) {
+      this.availabilitys = newMyProp
+      this.fetchData()
+    },
+    roomType(newMyProp) {
+      this.roomTypes = newMyProp
+      this.fetchData()
+    },
+    neighbourhoodGroup(newMyProp) {
+      this.neighbourhoodGroups = newMyProp
+      this.fetchData()
+    },
+  },
   
     mounted() {
       console.log("Fetching data")
@@ -104,9 +123,32 @@
             this.number_of_reviews.push(apartment["number_of_reviews"]);
             this.minimum_nights.push(apartment["minimum_nights"]);
             this.price.push(apartment["price"]);
+            // if ():
             
       })
-        //console.log(this.predictedData.length)
+      if( this.neighbourhoodGroups.length > 0){
+      this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
+      }
+      if( this.roomType.length > 0){
+      this.predictedData = this.predictedData.filter(item => item["room_type"] === this.neighbourhoodGroups);
+      }
+      if( this.availability.length > 0){
+      this.predictedData = this.predictedData.filter(item => item["availability_365"] <= this.neighbourhoodGroups);
+      }
+      this.predictedData.forEach((apartment) => {
+      this.number_of_reviews.push(apartment["number_of_reviews"]);
+            this.minimum_nights.push(apartment["minimum_nights"]);
+            this.price.push(apartment["price"]);
+      })
+        this.update_map();
+        this.drawHistogramPlot("histContainer1",this.price);
+        this.drawHistogramPlot("histContainer2",this.minimum_nights);
+        this.drawHistogramPlot("histContainer3",this.number_of_reviews);
+      },
+      filterData(){
+        this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
+          console.log("test")
+          console.log(this.predictedData)
         this.update_map();
         this.drawHistogramPlot("histContainer1",this.price);
         this.drawHistogramPlot("histContainer2",this.minimum_nights);

@@ -93,7 +93,10 @@
   name: 'LabelizeRatings',
   props: {
     msg: String,
-    switchComponent: Function
+    switchComponent: Function,
+    availability: String,
+    roomType: String,
+    neighbourhoodGroup: String
   },
   data: () => ({
       step: 1,

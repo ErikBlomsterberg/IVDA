@@ -40,7 +40,7 @@
           <v-btn
             class="bg-green-darken-1"
             variant="text"
-            @click="save"
+            @click="dialog = false"
           >
             Save
           </v-btn>
@@ -62,7 +62,13 @@
       </v-card>
     </v-dialog>
   <div>
-    <router-view ></router-view>
+    <!-- <router-view ></router-view> -->
+    <RouterView v-slot="{ Component }">
+  <component
+    :is="Component"
+    :availability="availability" :roomType="roomType" :neighbourhoodGroup="neighbourhoodGroup" inheritAttrs: false
+   />
+</RouterView>
   </div>
 </template>
 
@@ -81,9 +87,7 @@ export default {
     dialog: false,
     roomType: '',
     neighbourhoodGroup: '',
-    return: {
-      availability: 'test',
-    }
+    availability: ''
     
   }),
   methods: {
