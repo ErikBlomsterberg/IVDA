@@ -50,7 +50,7 @@ def model_predict():
     # Prediction
     y_pred = predict_rating(df[['latitude', 'longitude', 'price', '_Entire home/apt', '_Hotel room', '_Private room', '_Shared room']])
     # Here we can use either data or preprocessed csv, whatever.
-    y_pred = np.round(y_pred)
+    #y_pred = np.round(y_pred)
     y_pred = np.clip(y_pred, 1, 5)
     df['rating'] = y_pred
     # TODO : Replace ids with existing rating from the user.
