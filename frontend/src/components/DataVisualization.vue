@@ -1,9 +1,31 @@
 <template>
   <v-app>
+    <v-switch
+        v-model="colorblind_mode"
+        color="primary"
+        @update:modelValue="update_data"
+        hide-details
+        inset
+        :label="`Colorblind Mode: ${colorblind_mode.toString()}`">
+      </v-switch>
   <v-container width="200%">
    <v-row class="bg-grey-lighten-2">
+      
      <v-col cols="8">
        <v-sheet class="pa-2 ma-2" height="720px" id="mapContainer"  @click:map="update_map"></v-sheet>
+       <br>
+       <v-slider 
+            id="displayed_apartments_slider" 
+            color="blue" 
+            thumb-color="dark blue"
+            thumb-label
+            :max=100
+            :min=0
+            :step="1"
+            v-model="max_displayed_apartments" 
+            @update:modelValue="update_data"
+            >
+          </v-slider>
      </v-col>
      <v-col cols="4">
        <v-row no-gutters>
@@ -107,6 +129,8 @@
         availabilitys: '',
         roomTypes: '',
         neighbourhoodGroups: '',
+        colorblind_mode: false,
+        max_displayed_apartments: 20,
 
 
       }),
@@ -242,6 +266,8 @@
 
         //console.log(props)
         var max_rank = this.filteredData.length
+
+        
         
       
         var i;
@@ -253,7 +279,7 @@
 
         
         this.layerGroup.clearLayers()
-        for(i=0;i<max_rank;i++)
+        for(i=0;i<Math.min(max_rank,this.max_displayed_apartments);i++)
         {
           var price = this.filteredData[i]["price"]
           var latitude = this.filteredData[i]["latitude"]
@@ -267,7 +293,15 @@
           marker.bindPopup(`<b> ${title} </b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
         
           var hue_rotate_val = 250-100*(rank/max_rank);
-          marker._icon.style.filter = `hue-rotate(${hue_rotate_val}deg)`
+          if(this.colorblind_mode==true)
+          {
+            marker._icon.style.filter = `saturate(${1 - rank/max_rank})`
+          }
+          else
+          {
+            marker._icon.style.filter = `hue-rotate(${hue_rotate_val}deg)`
+          }
+          
           //marker._icon.style.filter = `saturate(${1 - rank/max_rank})`
           //marker._icon.style.filter = `opacity(${1 - rank/max_rank})`
         }
