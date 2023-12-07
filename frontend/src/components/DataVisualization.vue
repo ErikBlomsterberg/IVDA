@@ -8,6 +8,16 @@
         inset
         :label="`Colorblind Mode: ${colorblind_mode.toString()}`">
       </v-switch>
+
+      <v-select
+        v-model="filters_selected"
+        :items="filters_list"
+        chips
+        label="Filter by"
+        multiple
+        @update:modelValue="update_filters"
+      ></v-select>
+  
   <v-container width="200%">
    <v-row class="bg-grey-lighten-2">
       
@@ -16,6 +26,7 @@
        <br>
        <v-slider 
             id="displayed_apartments_slider" 
+            label="No of apartments displayed"
             color="blue" 
             thumb-color="dark blue"
             thumb-label
@@ -29,7 +40,7 @@
      </v-col>
      <v-col cols="4">
        <v-row no-gutters>
-         <v-col cols="12">
+         <v-col cols="12"  v-if="price_filter==true">
           <v-card-text>Filter by price</v-card-text>
           <v-card class="pa-2 ma-2" height="150px" id="histContainer1"> Price </v-card>
           
@@ -45,7 +56,7 @@
          </v-col>
        </v-row>
        <v-row no-gutters >
-         <v-col cols="12">
+         <v-col cols="12"  v-if="no_reviews_filter==true">
           <v-card-text>Filter by "No of reviews"</v-card-text>
            <v-card class="pa-2 ma-2" height="150px" id="histContainer2"> No of reviews
            </v-card>
@@ -63,7 +74,7 @@
          </v-col>
        </v-row>
        <v-row no-gutters >
-         <v-col cols="12">
+         <v-col cols="12"  v-if="min_nights_filter==true">
           <v-card-text>Filter by "Min no of days"</v-card-text>
            <v-card class="pa-2 ma-2" height="150px" id="histContainer3"> Min no of days </v-card>
            
@@ -73,6 +84,38 @@
             v-model="minnights_minmax" 
             thumb-label
             :max=max_minnights
+            :min=0
+            @update:modelValue="update_data">
+          </v-range-slider>
+         </v-col>
+       </v-row>
+       <v-row no-gutters>
+         <v-col cols="12"  v-if="max_nights_filter==true">
+          <v-card-text>Filter by max days</v-card-text>
+          <v-card class="pa-2 ma-2" height="150px" id="histContainer4"> Max no of nights </v-card>
+          
+          <v-range-slider 
+            id="max_nights_slider" 
+            color="red" 
+            v-model="maxnights_minmax" 
+            thumb-label
+            :max=max_maxnights
+            :min=0
+            @update:modelValue="update_data">
+          </v-range-slider>
+         </v-col>
+       </v-row>
+       <v-row no-gutters>
+         <v-col cols="12"  v-if="no_reviews_monthly_filter==true">
+          <v-card-text>Filter by reviews per month</v-card-text>
+          <v-card class="pa-2 ma-2" height="150px" id="histContainer5"> No of monthly reviews </v-card>
+          
+          <v-range-slider 
+            id="monthly_reviews_slider" 
+            color="purple" 
+            v-model="monthly_reviews_minmax" 
+            thumb-label
+            :max=max_monthly_reviews
             :min=0
             @update:modelValue="update_data">
           </v-range-slider>
@@ -120,18 +163,30 @@
         number_of_reviews: [],
         minimum_nights: [],
         price: [],
+        maximum_nights: [],
+        number_of_monthly_reviews: [],
         max_price: 0,
         max_minnights: 0,
         max_reviews: 0,
+        max_maxnights: 0,
+        max_monthly_reviews: 0,
         price_minmax: [0,100],
         review_minmax: [0,100],
         minnights_minmax: [0,100],
+        maxnights_minmax: [0,100],
+        monthly_reviews_minmax: [0,100],
         availabilitys: '',
         roomTypes: '',
         neighbourhoodGroups: '',
         colorblind_mode: false,
         max_displayed_apartments: 20,
-
+        filters_list: ["price","max_nights","min_nights","no_reviews","no_reviews_monthly"],
+        filters_selected: ["price","max_nights","no_reviews_monthly"],
+        price_filter:true,
+        max_nights_filter:true,
+        min_nights_filter:false,
+        no_reviews_filter:false,
+        no_reviews_monthly_filter:true,
 
       }),
   watch: {
@@ -184,6 +239,10 @@
 
             if(apartment["number_of_reviews"] > this.max_reviews)
               this.max_reviews = apartment["number_of_reviews"];
+            if(apartment["reviews_per_month"] > this.max_monthly_reviews)
+              this.max_monthly_reviews = apartment["reviews_per_month"];
+            if(apartment["availability_365"] > this.max_maxnights)
+              this.max_maxnights = apartment["availability_365"];
             if(apartment["price"] > this.max_price)
               this.max_price= apartment["price"];
             if(apartment["minimum_nights"] > this.max_minnights)
@@ -192,6 +251,8 @@
             this.number_of_reviews.push(apartment["number_of_reviews"]);
             this.minimum_nights.push(apartment["minimum_nights"]);
             this.price.push(apartment["price"]);
+            this.maximum_nights.push(apartment["availability_365"]);
+            this.number_of_monthly_reviews.push(apartment["reviews_per_month"]);
             
       })  
 
@@ -234,8 +295,48 @@
         this.filteredData = this.predictedData.slice()
       },
 
+      update_filters()
+      {
+        console.log("update Filters")
+        this.price_filter = false;
+        this.min_nights_filter = false;
+        this.max_nights_filter = false;
+        this.no_reviews_filter = false;
+        this.no_reviews_monthly_filter = false;
+
+        for(var i=0;i<this.filters_selected.length;i++)
+        {
+          if(this.filters_selected[i]=="price")
+          {
+            this.price_filter=true;
+          }
+          if(this.filters_selected[i]=="min_nights")
+          {
+            this.min_nights_filter=true;
+          }
+            if(this.filters_selected[i]=="max_nights")
+          {
+            this.max_nights_filter=true;
+          }
+            if(this.filters_selected[i]=="no_reviews")
+          {
+            this.no_reviews_filter=true;
+          }
+            if(this.filters_selected[i]=="no_reviews_monthly")
+          {
+            this.no_reviews_monthly_filter=true;
+          }
+        }
+
+        setTimeout(this.update_histograms, 100);
+
+        
+      },
+
       update_data()
       {
+        //console.log("Update Data")
+        //this.update_filters();
         this.reset_filters();
         //console.log("Before-after")
         //console.log(this.filteredData.length)
@@ -254,12 +355,34 @@
           {
             this.filteredData.splice(i,1)
           }
+          if(this.predictedData[i]["availability_365"] <= this.maxnights_minmax[0] || this.predictedData[i]["availability_365"] >= this.maxnights_minmax[1])
+          {
+            this.filteredData.splice(i,1)
+          }
+          if(this.predictedData[i]["reviews_per_month"] <= this.monthly_reviews_minmax[0] || this.predictedData[i]["reviews_per_month"] >= this.monthly_reviews_minmax[1])
+          {
+            this.filteredData.splice(i,1)
+          }
         }
         //console.log(this.filteredData.length)
         this.update_map();
-        this.drawHistogramPlot("histContainer1",this.price, "green", this.price_minmax);
-        this.drawHistogramPlot("histContainer2",this.number_of_reviews, "blue", this.review_minmax);
-        this.drawHistogramPlot("histContainer3",this.minimum_nights, "orange", this.minnights_minmax);
+        this.update_histograms();
+      },
+
+      update_histograms()
+      {
+        //console.log("Update histograms")
+        if(this.price_filter==true)
+          this.drawHistogramPlot("histContainer1",this.price, "green", this.price_minmax);
+        if(this.no_reviews_filter==true)
+          this.drawHistogramPlot("histContainer2",this.number_of_reviews, "blue", this.review_minmax);
+        if(this.min_nights_filter==true)
+          this.drawHistogramPlot("histContainer3",this.minimum_nights, "orange", this.minnights_minmax);
+        if(this.max_nights_filter==true)
+          this.drawHistogramPlot("histContainer4",this.maximum_nights, "red", this.maxnights_minmax);
+        if(this.no_reviews_monthly_filter==true)
+          this.drawHistogramPlot("histContainer5",this.number_of_monthly_reviews, "purple", this.monthly_reviews_minmax);
+
       },
 
       update_map() {
@@ -309,6 +432,8 @@
       },
 
       drawHistogramPlot(id,hist_data,hist_color,minmax) {
+
+
 
         var data_within_range = [];
         var data_outside_range = [];
