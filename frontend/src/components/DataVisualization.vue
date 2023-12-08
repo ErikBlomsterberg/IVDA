@@ -56,6 +56,11 @@
           </v-range-slider>
          </v-col>
        </v-row>
+       <v-row no-gutters>
+         <v-col cols="12">
+          <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
+         </v-col>
+       </v-row>
      </v-col>
    </v-row>
   </v-container>
@@ -69,6 +74,7 @@
 
   import Plotly from 'plotly.js-dist';
 
+  import ModelStats from './ModelStats.vue'
   //import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
 
   //Vue.component('l-map', LMap);
@@ -90,6 +96,9 @@
       roomType: String,
       neighbourhoodGroup: String
     },
+    components: {
+    ModelStats
+    },
     data: () => ({
         loading: false,
         elevations: [0, 4, 8, 12, 16, 20],
@@ -107,8 +116,8 @@
         availabilitys: '',
         roomTypes: '',
         neighbourhoodGroups: '',
-
-
+        model_error: 0,
+        n_ratings: 0,
       }),
   watch: {
     availability(newMyProp) {
@@ -145,9 +154,18 @@
         /* now send your bounds to the server, requesting only the visible markers */
         //console.log(bounds)
       //})
+
+        this.fetchModelData()
+
     },
 
     methods: {
+      async fetchModelData() {
+        var res = await fetch("http://127.0.0.1:5000/model-stats")
+        var data = await res.json()
+        this.model_error = data['error']
+        this.n_ratings = data['n_ratings']
+      },
       async fetchData() {
         const requestOptions = {
         method: "POST",
