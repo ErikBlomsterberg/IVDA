@@ -40,7 +40,7 @@
           <v-btn
             class="bg-green-darken-1"
             variant="text"
-            @click="dialog = false"
+            @click="dialogs = true"
           >
             Save
           </v-btn>
@@ -66,6 +66,7 @@
     <RouterView v-slot="{ Component }">
   <component
     :is="Component"
+    :dialogs="dialogs"
     :availability="availability" :roomType="roomType" :neighbourhoodGroup="neighbourhoodGroup" inheritAttrs: false
    />
 </RouterView>

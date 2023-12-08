@@ -83,7 +83,8 @@
       msg: String,
       availability: String,
       roomType: String,
-      neighbourhoodGroup: String
+      neighbourhoodGroup: String,
+      dialogs: Boolean
     },
     data: () => ({
         loading: false,
@@ -102,6 +103,7 @@
         availabilitys: '',
         roomTypes: '',
         neighbourhoodGroups: '',
+        dialogss: ''
 
 
       }),
@@ -118,6 +120,9 @@
       this.neighbourhoodGroups = newMyProp
       this.fetchData()
     },
+    dialogs(newMyProp) {
+      this.dialogss = newMyProp
+    }
   },
   
     mounted() {
@@ -165,8 +170,8 @@
             this.price.push(apartment["price"]);
             
       })  
-
-      if( this.neighbourhoodGroups.length > 0){
+      if(this.dialogss == "true"){
+      if( this.neighbourhoodGroups.length > 0) {
       this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
       }
       if( this.roomType.length > 0){
@@ -175,6 +180,7 @@
       if( this.availability.length > 0){
       this.predictedData = this.predictedData.filter(item => item["availability_365"] <= this.neighbourhoodGroups);
       }
+    }
 
         //sort based on rating
         this.predictedData.sort(function(a,b) {
