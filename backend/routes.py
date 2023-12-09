@@ -3,14 +3,13 @@ import json
 from flask import Blueprint, request, jsonify
 import pandas as pd 
 import numpy as np
-from model import update_model, predict_rating
+from model import update_model, predict_rating, model_error
 import csv
 
 training_path = 'Data/data.csv'
 df = pd.read_csv(training_path, index_col='id')
-
+#df = pd.read_csv(training_path)
 modified_ratings = {}
-
 
 
 all_routes = Blueprint('all_routes', __name__)
@@ -32,9 +31,7 @@ def start_page():
 
 @all_routes.route('/model-train', methods=['PUT'])
 def train_model():
-    global modified_ratings
     modified_ratings.update({int(request.json['id']): int(request.json['rating'])})
-
     return jsonify("Rating saved for id", request.json['id'])
 
 
@@ -55,3 +52,13 @@ def model_predict():
     df['rating'] = y_pred
     # TODO : Replace ids with existing rating from the user.
     return json.loads(df.reset_index().to_json(orient="records"))
+
+
+@all_routes.route('/model-stats', methods=['GET'])
+def model_stats():
+    y_label = list(modified_ratings.values())
+    X = df.loc[list(modified_ratings.keys())]
+    y_pred = predict_rating(X[['latitude', 'longitude', 'price', '_Entire home/apt', '_Hotel room', '_Private room', '_Shared room']])
+    error = round(model_error(y_label, y_pred), 3)
+    n_ratings = f'{len(modified_ratings)} / {df.shape[0]}'
+    return jsonify({'error': error, 'n_ratings': n_ratings})

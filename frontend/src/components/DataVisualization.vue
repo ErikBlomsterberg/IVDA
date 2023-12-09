@@ -8,7 +8,9 @@
      <v-col cols="4">
        <v-row no-gutters>
          <v-col cols="12">
-          <v-card class="pa-2 ma-2" height="180px" id="histContainer1"> Price </v-card>
+          <v-card-text>Filter by price</v-card-text>
+          <v-card class="pa-2 ma-2" height="150px" id="histContainer1"> Price </v-card>
+          
           <v-range-slider 
             id="price_slider" 
             color="green" 
@@ -22,7 +24,8 @@
        </v-row>
        <v-row no-gutters >
          <v-col cols="12">
-           <v-card class="pa-2 ma-2" height="180px" id="histContainer2"> No of reviews
+          <v-card-text>Filter by "No of reviews"</v-card-text>
+           <v-card class="pa-2 ma-2" height="150px" id="histContainer2"> No of reviews
            </v-card>
            
            <v-range-slider 
@@ -39,7 +42,9 @@
        </v-row>
        <v-row no-gutters >
          <v-col cols="12">
-           <v-card class="pa-2 ma-2" height="180px" id="histContainer3"> Min no of days </v-card>
+          <v-card-text>Filter by "Min no of days"</v-card-text>
+           <v-card class="pa-2 ma-2" height="150px" id="histContainer3"> Min no of days </v-card>
+           
            <v-range-slider 
             id="minnights_slider" 
             color="orange"
@@ -49,6 +54,11 @@
             :min=0
             @update:modelValue="update_data">
           </v-range-slider>
+         </v-col>
+       </v-row>
+       <v-row no-gutters>
+         <v-col cols="12">
+          <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
          </v-col>
        </v-row>
      </v-col>
@@ -64,6 +74,7 @@
 
   import Plotly from 'plotly.js-dist';
 
+  import ModelStats from './ModelStats.vue'
   //import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
 
   //Vue.component('l-map', LMap);
@@ -86,6 +97,9 @@
       neighbourhoodGroup: String,
       dialogs: Boolean
     },
+    components: {
+    ModelStats
+    },
     data: () => ({
         loading: false,
         elevations: [0, 4, 8, 12, 16, 20],
@@ -103,25 +117,24 @@
         availabilitys: '',
         roomTypes: '',
         neighbourhoodGroups: '',
-        dialogss: ''
-
-
+        filter: '',
+        model_error: 0,
+        n_ratings: 0,
       }),
   watch: {
     availability(newMyProp) {
       this.availabilitys = newMyProp
-      this.fetchData()
     },
     roomType(newMyProp) {
       this.roomTypes = newMyProp
-      this.fetchData()
     },
     neighbourhoodGroup(newMyProp) {
       this.neighbourhoodGroups = newMyProp
-      this.fetchData()
     },
     dialogs(newMyProp) {
-      this.dialogss = newMyProp
+      this.filter = newMyProp
+      this.fetchModelData()
+      this.update_data()
     }
   },
   
@@ -145,9 +158,18 @@
         /* now send your bounds to the server, requesting only the visible markers */
         //console.log(bounds)
       //})
+
+        this.fetchModelData()
+
     },
 
     methods: {
+      async fetchModelData() {
+        var res = await fetch("http://127.0.0.1:5000/model-stats")
+        var data = await res.json()
+        this.model_error = data['error']
+        this.n_ratings = data['n_ratings']
+      },
       async fetchData() {
         const requestOptions = {
         method: "POST",
@@ -169,18 +191,7 @@
             this.minimum_nights.push(apartment["minimum_nights"]);
             this.price.push(apartment["price"]);
             
-      })  
-      if(this.dialogss == "true"){
-      if( this.neighbourhoodGroups.length > 0) {
-      this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
-      }
-      if( this.roomType.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["room_type"] === this.neighbourhoodGroups);
-      }
-      if( this.availability.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["availability_365"] <= this.neighbourhoodGroups);
-      }
-    }
+      })
 
         //sort based on rating
         this.predictedData.sort(function(a,b) {
@@ -232,6 +243,16 @@
             this.filteredData.splice(i,1)
           }
         }
+        if( this.neighbourhoodGroups.length > 0) {
+        this.filteredData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
+        }
+        if( this.roomType.length > 0){
+
+        this.filteredData = this.predictedData.filter(item => item["room_type"] === this.roomType);
+        }
+        if( this.availability.length > 0){
+        this.filteredData = this.predictedData.filter(item => item["availability_365"] <= this.availability);
+        }
         //console.log(this.filteredData.length)
         this.update_map();
         this.drawHistogramPlot("histContainer1",this.price, "green", this.price_minmax);
@@ -265,7 +286,8 @@
           //console.log(this.filteredData[i]["rating"])
           var marker = L.marker([latitude,longitude],{title :`${price} CHF`}).addTo(this.layerGroup);
           //this.markers.push(marker)
-          marker.bindPopup(`<b> ${title} </b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: 
+          <v-btn variant="text" icon="mdi-filter" @click="dialog = true"></v-btn>`);
         
           var hue_rotate_val = 250-100*(rank/max_rank);
           marker._icon.style.filter = `hue-rotate(${hue_rotate_val}deg)`

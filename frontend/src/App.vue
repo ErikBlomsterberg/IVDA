@@ -40,7 +40,7 @@
           <v-btn
             class="bg-green-darken-1"
             variant="text"
-            @click="dialogs = true"
+            @click="save"
           >
             Save
           </v-btn>
@@ -66,7 +66,7 @@
     <RouterView v-slot="{ Component }">
   <component
     :is="Component"
-    :dialogs="dialogs"
+    :dialogs="dialog"
     :availability="availability" :roomType="roomType" :neighbourhoodGroup="neighbourhoodGroup" inheritAttrs: false
    />
 </RouterView>
@@ -88,20 +88,27 @@ export default {
     dialog: false,
     roomType: '',
     neighbourhoodGroup: '',
-    availability: ''
+    availability: '',
+    bufferRoomType: '',
+    bufferAvailability: '',
+    bufferNeighbourhoodGroup: ''
     
   }),
   methods: {
     selectedRoomType(props) {
-      this.roomType = props
+      this.bufferRoomType = props
     },
     selectedMaximumNights(props) {
-      this.availability = props
+      this.bufferAvailability = props
     },
     selectedNeighbourhoodGroup(props) {
-      this.neighbourhoodGroup = props
+      this.bufferNeighbourhoodGroup = props
     },
-    save(){
+    save() {
+      this.roomType = this.bufferRoomType
+      this.neighbourhoodGroup = this.bufferNeighbourhoodGroup
+      this.availability = this.bufferAvailability
+      this.dialog = false
 }
   },
 }

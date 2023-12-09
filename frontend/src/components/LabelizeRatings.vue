@@ -1,4 +1,13 @@
 <template>
+  <v-snackbar
+      :timeout="4000"
+      color="deep-purple-accent-4"
+      elevation="24"
+      v-model="snackbar"
+    >
+
+      <strong>Please rate the apartments to find those that match your preferences.</strong>
+    </v-snackbar>
   <v-card  v-for="(item, index) in CurrentApartment" :key="index" 
     class="mx-auto"
     max-width="500"
@@ -106,7 +115,8 @@
       progress: 0,
       CurrentApartment: [],
       showSubmit: false,
-      predictedData: []
+      predictedData: [],
+      snackbar: true
     }),
 
   mounted() {
