@@ -64,7 +64,12 @@
      </v-col>
    </v-row>
   </v-container>
-  </v-app>
+  </v-app><v-dialog theme="light" v-model="detailview" scrollable width="auto"><v-card>
+    <ApartmentDetails :room_type="s_room_type" :neighbourhood="s_neighbourhood"  :neighbourhood_group="s_neighbourhood_group" 
+    :minimum_nights = "s_minimum_nights" :availability_365="s_availability_365" :host_name="s_host_name" :calculated_host_listings_count="s_calculated_host_listings_count"
+      :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="3"/>
+    <v-card-actions>
+        </v-card-actions></v-card></v-dialog>
  </template>
  
  <script>
@@ -74,7 +79,8 @@
 
   import Plotly from 'plotly.js-dist';
 
-  import ModelStats from './ModelStats.vue'
+  import ModelStats from './ModelStats.vue';
+  import ApartmentDetails from "./ApartmentDetails.vue";
   //import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
 
   //Vue.component('l-map', LMap);
@@ -98,7 +104,8 @@
       dialogs: Boolean
     },
     components: {
-    ModelStats
+    ModelStats,
+    ApartmentDetails
     },
     data: () => ({
         loading: false,
@@ -120,6 +127,8 @@
         filter: '',
         model_error: 0,
         n_ratings: 0,
+        detailview: true,
+        s_room_type: ''
       }),
   watch: {
     availability(newMyProp) {
@@ -171,6 +180,7 @@
         this.n_ratings = data['n_ratings']
       },
       async fetchData() {
+        this.test = 'Tamanna'
         const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -221,7 +231,6 @@
       {
         this.filteredData = this.predictedData.slice()
       },
-
       update_data()
       {
         this.reset_filters();
@@ -282,12 +291,13 @@
           var longitude = this.filteredData[i]["longitude"]
           var title = this.filteredData[i]["name"]
           var rank = i
-
+          // popupComponent.$mount(test);
           //console.log(this.filteredData[i]["rating"])
           var marker = L.marker([latitude,longitude],{title :`${price} CHF`}).addTo(this.layerGroup);
           //this.markers.push(marker)
-          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: 
-          <v-btn variant="text" icon="mdi-filter" @click="dialog = true"></v-btn>`);
+          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<div><ApartmentDetails :title="${title}" :content="${price}"></ApartmentDetails></div>`);
+          
         
           var hue_rotate_val = 250-100*(rank/max_rank);
           marker._icon.style.filter = `hue-rotate(${hue_rotate_val}deg)`
