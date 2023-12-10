@@ -20,7 +20,7 @@
         <v-card-title>{{ name }} </v-card-title>
   
         <v-card-subtitle>
-          <span class="me-1">{{ room_type }}</span>   &nbsp;&nbsp;&nbsp;<span class="my-4 text-subtitle-1">               Rank: {{ rank }}</span>
+          <span class="me-1">{{ room_type }}</span> <span style="width:80%"></span><span style="margin-right: 80%;" class="my-4 text-subtitle-1">Rank: {{ rank }}</span>
   
           <v-icon color="error" icon="mdi-fire-circle" size="small"></v-icon>
         </v-card-subtitle>

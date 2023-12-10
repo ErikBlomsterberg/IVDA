@@ -475,7 +475,8 @@
           marker.id = this.filteredData[i];
           marker.rank = rank;
           //this.markers.push(marker)
-          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          console.log(title,price,rank)
+          // marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
           
         
           var hue_rotate_val = 250-100*(rank/max_rank);
