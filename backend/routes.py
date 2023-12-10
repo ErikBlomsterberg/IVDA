@@ -8,6 +8,8 @@ import csv
 
 training_path = 'Data/data.csv'
 df = pd.read_csv(training_path, index_col='id')
+
+df_apartments = pd.read_csv('Data/preprocessed.csv')
 #df = pd.read_csv(training_path)
 modified_ratings = {}
 
@@ -16,17 +18,21 @@ all_routes = Blueprint('all_routes', __name__)
 
 @all_routes.route('/apartments', methods=['GET'])
 def start_page():
+    '''
     csv_encoding = 'utf-8'
     data = []
     csv_file_path = 'Data/preprocessed.csv'
-    # TODO : decide a better strategy
     with open(csv_file_path, 'r', encoding=csv_encoding) as csv_file:
         csv_reader = csv.DictReader(csv_file)
         for i, row in enumerate(csv_reader):
             data.append(row)
             if(i == 9):
                 break
-    return jsonify(data)
+    '''
+    apartments = df_apartments.sample(n=10).applymap(str)
+    data1 = apartments.to_dict(orient='records')
+
+    return jsonify(data1)
 
 
 @all_routes.route('/model-train', methods=['PUT'])
