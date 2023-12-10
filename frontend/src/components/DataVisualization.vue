@@ -119,12 +119,19 @@
             :min=0
             @update:modelValue="update_data">
           </v-range-slider>
+         <v-col cols="12">
+          <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
          </v-col>
        </v-row>
      </v-col>
    </v-row>
   </v-container>
-  </v-app>
+  </v-app><v-dialog theme="light" v-model="detailview" scrollable width="auto"><v-card>
+    <ApartmentDetails :room_type="s_room_type" :neighbourhood="s_neighbourhood"  :neighbourhood_group="s_neighbourhood_group" 
+    :minimum_nights = "s_minimum_nights" :availability_365="s_availability_365" :host_name="s_host_name" :calculated_host_listings_count="s_calculated_host_listings_count"
+      :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="3"/>
+    <v-card-actions>
+        </v-card-actions></v-card></v-dialog>
  </template>
  
  <script>
@@ -134,6 +141,8 @@
 
   import Plotly from 'plotly.js-dist';
 
+  import ModelStats from './ModelStats.vue';
+  import ApartmentDetails from "./ApartmentDetails.vue";
   //import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
 
   //Vue.component('l-map', LMap);
@@ -153,7 +162,12 @@
       msg: String,
       availability: String,
       roomType: String,
-      neighbourhoodGroup: String
+      neighbourhoodGroup: String,
+      dialogs: Boolean
+    },
+    components: {
+    ModelStats,
+    ApartmentDetails
     },
     data: () => ({
         loading: false,
@@ -188,20 +202,27 @@
         no_reviews_filter:false,
         no_reviews_monthly_filter:true,
 
+        filter: '',
+        model_error: 0,
+        n_ratings: 0,
+        detailview: true,
+        s_room_type: ''
       }),
   watch: {
     availability(newMyProp) {
       this.availabilitys = newMyProp
-      this.fetchData()
     },
     roomType(newMyProp) {
       this.roomTypes = newMyProp
-      this.fetchData()
     },
     neighbourhoodGroup(newMyProp) {
       this.neighbourhoodGroups = newMyProp
-      this.fetchData()
     },
+    dialogs(newMyProp) {
+      this.filter = newMyProp
+      this.fetchModelData()
+      this.update_data()
+    }
   },
   
     mounted() {
@@ -224,10 +245,20 @@
         /* now send your bounds to the server, requesting only the visible markers */
         //console.log(bounds)
       //})
+
+        this.fetchModelData()
+
     },
 
     methods: {
+      async fetchModelData() {
+        var res = await fetch("http://127.0.0.1:5000/model-stats")
+        var data = await res.json()
+        this.model_error = data['error']
+        this.n_ratings = data['n_ratings']
+      },
       async fetchData() {
+        this.test = 'Tamanna'
         const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -254,17 +285,7 @@
             this.maximum_nights.push(apartment["availability_365"]);
             this.number_of_monthly_reviews.push(apartment["reviews_per_month"]);
             
-      })  
-
-      if( this.neighbourhoodGroups.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
-      }
-      if( this.roomType.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["room_type"] === this.neighbourhoodGroups);
-      }
-      if( this.availability.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["availability_365"] <= this.neighbourhoodGroups);
-      }
+      })
 
         //sort based on rating
         this.predictedData.sort(function(a,b) {
@@ -294,6 +315,7 @@
       {
         this.filteredData = this.predictedData.slice()
       },
+
 
       update_filters()
       {
@@ -333,6 +355,7 @@
         
       },
 
+
       update_data()
       {
         //console.log("Update Data")
@@ -363,6 +386,16 @@
           {
             this.filteredData.splice(i,1)
           }
+        }
+        if( this.neighbourhoodGroups.length > 0) {
+        this.filteredData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
+        }
+        if( this.roomType.length > 0){
+
+        this.filteredData = this.predictedData.filter(item => item["room_type"] === this.roomType);
+        }
+        if( this.availability.length > 0){
+        this.filteredData = this.predictedData.filter(item => item["availability_365"] <= this.availability);
         }
         //console.log(this.filteredData.length)
         this.update_map();
@@ -409,11 +442,13 @@
           var longitude = this.filteredData[i]["longitude"]
           var title = this.filteredData[i]["name"]
           var rank = i
-
+          // popupComponent.$mount(test);
           //console.log(this.filteredData[i]["rating"])
           var marker = L.marker([latitude,longitude],{title :`${price} CHF`}).addTo(this.layerGroup);
           //this.markers.push(marker)
-          marker.bindPopup(`<b> ${title} </b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<div><ApartmentDetails :title="${title}" :content="${price}"></ApartmentDetails></div>`);
+          
         
           var hue_rotate_val = 250-100*(rank/max_rank);
           if(this.colorblind_mode==true)
