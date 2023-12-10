@@ -466,6 +466,13 @@
 
       },
 
+      marker_click(e)
+      {
+        console.log("Marker clicked!")
+        console.log(e)
+      },
+
+
       update_map() {
 
         //console.log(props)
@@ -492,7 +499,9 @@
           var rank = i
           // popupComponent.$mount(test);
           //console.log(this.filteredData[i]["rating"])
-          var marker = L.marker([latitude,longitude],{title :`${price} CHF`}).addTo(this.layerGroup);
+          var marker = L.marker([latitude,longitude],{title :`${price} CHF`})
+          marker.on('click', this.marker_click);
+          marker.addTo(this.layerGroup);
           //this.markers.push(marker)
           marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
           marker.bindPopup(`<div><ApartmentDetails :title="${title}" :content="${price}"></ApartmentDetails></div>`);
@@ -598,6 +607,7 @@
       
     }
   }
+
 
 
  </script>
