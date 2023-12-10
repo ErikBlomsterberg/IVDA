@@ -1,4 +1,4 @@
-<template> <v-card class="mx-auto my-12" max-width="350" max-height="600">
+<template> <v-card class="mx-auto my-12" max-width="380" max-height="600">
   
       <v-img v-if="room_type === 'Private room'"
         cover
