@@ -125,17 +125,23 @@
      </v-col>
    </v-row>
   </v-container>
-  </v-app>
+  </v-app><v-dialog theme="light" v-model="detailview" scrollable width="auto"><v-card>
+    <ApartmentDetails :room_type="s_room_type" :neighbourhood="s_neighbourhood"  :neighbourhood_group="s_neighbourhood_group" 
+    :minimum_nights = "s_minimum_nights" :availability_365="s_availability_365" :host_name="s_host_name" :calculated_host_listings_count="s_calculated_host_listings_count"
+      :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="3"/>
+    <v-card-actions>
+        </v-card-actions></v-card></v-dialog>
  </template>
  
-<script>
+ <script>
   // Import Leaflet for map visualization
   import "leaflet/dist/leaflet.css";
   import L from 'leaflet';
 
   import Plotly from 'plotly.js-dist';
-  import ModelStats from './ModelStats.vue'
-  
+
+  import ModelStats from './ModelStats.vue';
+  import ApartmentDetails from "./ApartmentDetails.vue";
   //import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
 
   //Vue.component('l-map', LMap);
@@ -148,7 +154,6 @@
     iconUrl: require('leaflet/dist/images/marker-icon.png'),
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
   });
-  console.log('hej')
 
   export default {
     name: 'DataVisualization',
@@ -156,10 +161,12 @@
       msg: String,
       availability: String,
       roomType: String,
-      neighbourhoodGroup: String
+      neighbourhoodGroup: String,
+      dialogs: Boolean
     },
     components: {
-    ModelStats
+    ModelStats,
+    ApartmentDetails
     },
     data: () => ({
         loading: false,
@@ -197,23 +204,25 @@
         filter: '',
         model_error: 0,
         n_ratings: 0,
+        detailview: true,
+        s_room_type: ''
       }),
-  
-      watch: {
-        availability(newMyProp) {
-          this.availabilitys = newMyProp
-          this.fetchData()
-        },
-        roomType(newMyProp) {
-          this.roomTypes = newMyProp
-          this.fetchData()
-        },
-        neighbourhoodGroup(newMyProp) {
-          this.neighbourhoodGroups = newMyProp
-          this.fetchData()
-        },
-      },
-  
+  watch: {
+    availability(newMyProp) {
+      this.availabilitys = newMyProp
+    },
+    roomType(newMyProp) {
+      this.roomTypes = newMyProp
+    },
+    neighbourhoodGroup(newMyProp) {
+      this.neighbourhoodGroups = newMyProp
+    },
+    dialogs(newMyProp) {
+      this.filter = newMyProp
+      this.fetchModelData()
+      this.update_data()
+    }
+  },
   
     mounted() {
       console.log("Fetching data")
@@ -248,6 +257,7 @@
         this.n_ratings = data['n_ratings']
       },
       async fetchData() {
+        this.test = 'Tamanna'
         const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -274,17 +284,7 @@
             this.maximum_nights.push(apartment["availability_365"]);
             this.number_of_monthly_reviews.push(apartment["reviews_per_month"]);
             
-      })  
-
-      if( this.neighbourhoodGroups.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
-      }
-      if( this.roomType.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["room_type"] === this.neighbourhoodGroups);
-      }
-      if( this.availability.length > 0){
-      this.predictedData = this.predictedData.filter(item => item["availability_365"] <= this.neighbourhoodGroups);
-      }
+      })
 
         //sort based on rating
         this.predictedData.sort(function(a,b) {
@@ -386,6 +386,16 @@
             this.filteredData.splice(i,1)
           }
         }
+        if( this.neighbourhoodGroups.length > 0) {
+        this.filteredData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
+        }
+        if( this.roomType.length > 0){
+
+        this.filteredData = this.predictedData.filter(item => item["room_type"] === this.roomType);
+        }
+        if( this.availability.length > 0){
+        this.filteredData = this.predictedData.filter(item => item["availability_365"] <= this.availability);
+        }
         //console.log(this.filteredData.length)
         this.update_map();
         this.update_histograms();
@@ -406,6 +416,13 @@
           this.drawHistogramPlot("histContainer5",this.number_of_monthly_reviews, "purple", this.monthly_reviews_minmax);
 
       },
+
+      marker_click(e)
+      {
+        console.log("Marker clicked!")
+        console.log(e)
+      },
+
 
       update_map() {
 
@@ -431,11 +448,15 @@
           var longitude = this.filteredData[i]["longitude"]
           var title = this.filteredData[i]["name"]
           var rank = i
-
+          // popupComponent.$mount(test);
           //console.log(this.filteredData[i]["rating"])
-          var marker = L.marker([latitude,longitude],{title :`${price} CHF`}).addTo(this.layerGroup);
+          var marker = L.marker([latitude,longitude],{title :`${price} CHF`})
+          marker.on('click', this.marker_click);
+          marker.addTo(this.layerGroup);
           //this.markers.push(marker)
-          marker.bindPopup(`<b> ${title} </b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
+          marker.bindPopup(`<div><ApartmentDetails :title="${title}" :content="${price}"></ApartmentDetails></div>`);
+          
         
           var hue_rotate_val = 250-100*(rank/max_rank);
           if(this.colorblind_mode==true)
@@ -464,11 +485,11 @@
         {
           if(hist_data[i]<=minmax[1] && hist_data[i]>=minmax[0])
           {
-            data_within_range.push(Math.log(hist_data[i]));
+            data_within_range.push(hist_data[i]);
           }
           else
           {
-            data_outside_range.push(Math.log(hist_data[i]));
+            data_outside_range.push(hist_data[i]);
           }
         }
 
@@ -509,17 +530,16 @@
           },
         }
         var config = {responsive: true}
-        console.log(config, layout)
         Plotly.newPlot(id, data, layout, config);
         //this.clickScatterPlot()
-        //Plotly.express.histogram(data)
       },
       
     }
-  };
-  
+  }
 
-</script>
+
+
+ </script>
 
  <!-- Add "scoped" attribute to limit CSS to this component only -->
  <style scoped>
