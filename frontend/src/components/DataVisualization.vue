@@ -21,6 +21,7 @@
   <v-container width="200%">
    <v-row class="bg-grey-lighten-2">
     <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
+    <v-col cols="2"></v-col>
      <v-col cols="8">
        <v-sheet class="pa-2 ma-2" height="720px" id="mapContainer"  @click:map="update_map"></v-sheet>
        <br>
@@ -125,12 +126,11 @@
      </v-col>
    </v-row>
   </v-container>
-  </v-app><v-dialog theme="light" v-model="detailview" scrollable width="auto"><v-card>
+  </v-app><v-dialog theme="light" v-model="detailview" scrollable width="auto">
     <ApartmentDetails :room_type="s_room_type" :neighbourhood="s_neighbourhood"  :neighbourhood_group="s_neighbourhood_group" 
     :minimum_nights = "s_minimum_nights" :availability_365="s_availability_365" :host_name="s_host_name" :calculated_host_listings_count="s_calculated_host_listings_count"
-      :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="3"/>
-    <v-card-actions>
-        </v-card-actions></v-card></v-dialog>
+      :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="s_rating" :name="s_name" :price="s_price" :rank="s_rank" :s_id="s_id"/>
+    </v-dialog>
  </template>
  
  <script>
@@ -204,7 +204,7 @@
         filter: '',
         model_error: 0,
         n_ratings: 0,
-        detailview: true,
+        detailview: false,
         s_room_type: ''
       }),
   watch: {
@@ -420,7 +420,26 @@
       marker_click(e)
       {
         console.log("Marker clicked!")
-        console.log(e)
+        this.detailview = true
+        this.details_data = JSON.parse(JSON.stringify(e.target.id))
+        this.s_room_type = this.details_data['_Private room'] == 1 ? 'Private room' : this.details_data['_Hotel room'] == 1 ? 'Hotel room' : this.details_data['_Entire home/apt'] == 1 ? 'Entire home/apt' : ''
+        this.s_neighbourhood = this.details_data['neighbourhood']
+        this.s_neighbourhood_group = this.details_data['neighbourhood_group']
+        this.s_minimum_nights = this.details_data['minimum_nights']
+        this.s_availability_365 = this.details_data['availability_365']
+        this.s_host_name = this.details_data['host_name']
+        this.s_calculated_host_listings_count = this.details_data['calculated_host_listings_count']
+        this.s_number_of_reviews = this.details_data['number_of_reviews']
+        this.s_last_review = this.details_data['last_review']
+        this.s_rating = this.details_data['rating']
+        this.s_price = this.details_data['price']
+        this.s_name = this.details_data['name']
+        this.s_id = this.details_data['id']
+        this.s_rank = e.target.rank
+
+    //     :room_type="s_room_type" :neighbourhood="s_neighbourhood"  :neighbourhood_group="s_neighbourhood_group" 
+    // :minimum_nights = "s_minimum_nights" :availability_365="s_availability_365" :host_name="s_host_name" :calculated_host_listings_count="s_calculated_host_listings_count"
+    //   :number_of_reviews="s_number_of_reviews" :last_review="s_last_review" :s_rating="3"
       },
 
 
@@ -450,12 +469,13 @@
           var rank = i
           // popupComponent.$mount(test);
           //console.log(this.filteredData[i]["rating"])
-          var marker = L.marker([latitude,longitude],{title :`${price} CHF`})
+          var marker = L.marker([latitude,longitude],{title :`${price} CHF`},{rank})
           marker.on('click', this.marker_click);
           marker.addTo(this.layerGroup);
+          marker.id = this.filteredData[i];
+          marker.rank = rank;
           //this.markers.push(marker)
           marker.bindPopup(`<b> ${title}</b><br>Price: <b>${price} CHF</b><br>Rank: <b>${rank}</b>`);
-          marker.bindPopup(`<div><ApartmentDetails :title="${title}" :content="${price}"></ApartmentDetails></div>`);
           
         
           var hue_rotate_val = 250-100*(rank/max_rank);

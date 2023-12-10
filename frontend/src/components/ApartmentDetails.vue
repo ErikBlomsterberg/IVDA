@@ -1,18 +1,18 @@
-<template> <v-card class="mx-auto my-12" max-width="350" max-height="400">
+<template> <v-card class="mx-auto my-12" max-width="350" max-height="600">
   
       <v-img v-if="room_type === 'Private room'"
         cover
-        height="400"
+        height="220"
         src="1-room.jpg"
       ></v-img>
       <v-img v-if="room_type === 'Entire home/apt'"
         cover
-        height="400"
+        height="220"
         src="whole-apartment.jpg"
       ></v-img>
       <v-img v-if="room_type === 'Hotel room'"
         cover
-        height="400"
+        height="220"
         src="hotel-room.jpg"
       ></v-img>
   
@@ -20,7 +20,7 @@
         <v-card-title>{{ name }} </v-card-title>
   
         <v-card-subtitle>
-          <span class="me-1">{{ room_type }}</span>
+          <span class="me-1">{{ room_type }}</span>   &nbsp;&nbsp;&nbsp;<span class="my-4 text-subtitle-1">               Rank: {{ rank }}</span>
   
           <v-icon color="error" icon="mdi-fire-circle" size="small"></v-icon>
         </v-card-subtitle>
@@ -35,7 +35,8 @@
         <div class="my-4 text-subtitle-1">$ • {{ price }} CHF</div>
       </v-card-text>
   
-      <v-divider class="mx-4 mb-1"></v-divider>
+      <!-- <v-divider class="mx-2 mb-1"></v-divider> -->
+      <v-card-actions>
         <v-rating
         hover
         :length="5"
@@ -45,6 +46,7 @@
         @update:modelValue="updateInput"
         @click:modelValue="updateInput"
       />
+    </v-card-actions>
     </v-card>
   </template>
   
@@ -64,33 +66,47 @@
       calculated_host_listings_count: String,
       number_of_reviews: String,
       last_review: String,
-      s_rating: String
+      s_rating: String,
+      price: String,
+      name: String,
+      rank: String,
+      s_id: String
     },
     data: () => ({
         step: 1,
         loading: false,
         ApartmentData: [],
-        rating: 0,
         progress: 0,
         CurrentApartment: [],
         showSubmit: false,
         predictedData: [],
-        snackbar: true
+        snackbar: true,
+        rating: 0,
+        id: ''
+
       }),
   watch: {
     s_rating(newValue) {
       // The watcher is triggered whenever the prop value changes
+      console.log('Tamanna')
       this.rating = newValue;
+      this.updateInput(newValue)
+    }
+    ,
+    s_id(newValue){
+        this.id =newValue
     }
   },
   
     mounted() {
+        this.rating = this.s_rating
+        this.id = this.s_id
     },
   
     methods: {
       updateInput(props) {
         this.rating = props
-        this.trainData(this.CurrentApartment[0].id, this.rating) 
+        this.trainData(this.id, this.rating) 
     },
     trainData(id, rating) {
     const requestOptions = {
