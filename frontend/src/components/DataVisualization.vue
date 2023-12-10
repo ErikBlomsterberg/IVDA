@@ -20,7 +20,7 @@
   
   <v-container width="200%">
    <v-row class="bg-grey-lighten-2">
-      
+    <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
      <v-col cols="8">
        <v-sheet class="pa-2 ma-2" height="720px" id="mapContainer"  @click:map="update_map"></v-sheet>
        <br>
@@ -119,9 +119,8 @@
             :min=0
             @update:modelValue="update_data">
           </v-range-slider>
-         <v-col cols="12">
-          <ModelStats :model_error=this.model_error :n_ratings=this.n_ratings />
-         </v-col>
+          
+          </v-col>
        </v-row>
      </v-col>
    </v-row>
