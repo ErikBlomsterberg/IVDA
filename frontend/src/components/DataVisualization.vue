@@ -1,5 +1,55 @@
 <template>
   <v-app>
+    <v-card>
+        <v-card-title style="text-align: left;">
+          <span class="text-h5">Filters</span>
+        </v-card-title>
+        <v-select style="width:20%;margin-left: 20px;display:inline-block;"
+          :label="filter_room"
+          :items="['Private room', 'Entire home/apt', 'Hotel room']"
+          @update:modelValue="selectedRoomType"
+        ></v-select>
+        <v-select style="width:20%;margin-left: 20px;display:inline-block;"
+          :label="filter_neigh"
+          :items="['Kreis 1', 'Kreis 2', 'Kreis 3', 'Kreis 4','Kreis 5', 'Kreis 6', 'Kreis 7', 'Kreis 8','Kreis 9', 'Kreis 10', 'Kreis 11', 'Kreis 12']"
+          @update:modelValue="selectedNeighbourhoodGroup"
+        ></v-select>
+        <v-text-field style="width:20%;margin-left: 20px;display:inline-block;" clearable 
+          :label="filter_maxNights" variant="outlined" @update:modelValue="selectedMaximumNights"></v-text-field>
+          <!-- <v-range-slider style="width:70%;margin-left: 20px;"
+          v-model="value"
+          step="10"
+          thumb-label="always"
+        ></v-range-slider> -->
+        <v-select 
+        style="width:25%;margin-left: 20px;display:inline-block;"
+        v-model="filters_selected"
+        :items="filters_list"
+        chips
+        label="Histogram filters"
+        multiple
+        @update:modelValue="update_filters"
+      ></v-select>
+        
+        <v-card-actions>
+          <v-btn
+            class="bg-green-darken-1"
+            variant="text"
+            @click="save"
+          >
+            Save
+          </v-btn>
+          <v-btn
+            class="bg-red-darken-1"
+            variant="text"
+            @click="reset"
+          >
+            Reset
+          </v-btn>
+        </v-card-actions>
+    </v-card>
+    
+
     <v-switch
         v-model="colorblind_mode"
         color="primary"
@@ -8,15 +58,6 @@
         inset
         :label="`Colorblind Mode: ${colorblind_mode.toString()}`">
       </v-switch>
-
-      <v-select
-        v-model="filters_selected"
-        :items="filters_list"
-        chips
-        label="Filter by"
-        multiple
-        @update:modelValue="update_filters"
-      ></v-select>
   
   <v-container width="200%">
    <v-row class="bg-grey-lighten-2">
@@ -157,13 +198,13 @@
 
   export default {
     name: 'DataVisualization',
-    props: {
-      msg: String,
-      availability: String,
-      roomType: String,
-      neighbourhoodGroup: String,
-      dialogs: Boolean
-    },
+    // props: {
+    //   msg: String,
+    //   availability: String,
+    //   roomType: String,
+    //   neighbourhoodGroup: String,
+    //   dialogs: Boolean
+    // },
     components: {
     ModelStats,
     ApartmentDetails
@@ -205,23 +246,31 @@
         model_error: 0,
         n_ratings: 0,
         detailview: true,
-        s_room_type: ''
+        s_room_type: '',
+
+        availability: '',
+        roomType:'',
+        neighbourhoodGroup:'',
+
+        filter_room : 'Select Room Type',
+        filter_neigh : 'Select Neighbourhood Group',
+        filter_maxNights : 'Maximum Nights'
       }),
   watch: {
-    availability(newMyProp) {
-      this.availabilitys = newMyProp
-    },
-    roomType(newMyProp) {
-      this.roomTypes = newMyProp
-    },
-    neighbourhoodGroup(newMyProp) {
-      this.neighbourhoodGroups = newMyProp
-    },
-    dialogs(newMyProp) {
-      this.filter = newMyProp
-      this.fetchModelData()
-      this.update_data()
-    }
+    // availability(newMyProp) {
+    //   this.availabilitys = newMyProp
+    // },
+    // roomType(newMyProp) {
+    //   this.roomTypes = newMyProp
+    // },
+    // neighbourhoodGroup(newMyProp) {
+    //   this.neighbourhoodGroups = newMyProp
+    // },
+    // dialogs(newMyProp) {
+    //   this.filter = newMyProp
+    //   this.fetchModelData()
+    //   this.update_data()
+    // }
   },
   
     mounted() {
@@ -386,15 +435,15 @@
             this.filteredData.splice(i,1)
           }
         }
-        if( this.neighbourhoodGroups.length > 0) {
-        this.filteredData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
-        }
-        if( this.roomType.length > 0){
 
-        this.filteredData = this.predictedData.filter(item => item["room_type"] === this.roomType);
+        if( this.neighbourhoodGroups.length > 0) {
+          this.filteredData = this.predictedData.filter(item => item["neighbourhood_group"] === this.neighbourhoodGroups);
         }
-        if( this.availability.length > 0){
-        this.filteredData = this.predictedData.filter(item => item["availability_365"] <= this.availability);
+        if( this.roomTypes.length > 0){
+          this.filteredData = this.predictedData.filter(item => item["room_type"] === this.roomTypes);
+        }
+        if( this.availabilitys.length > 0){
+          this.filteredData = this.predictedData.filter(item => item["availability_365"] === this.availabilitys);
         }
         //console.log(this.filteredData.length)
         this.update_map();
@@ -524,6 +573,28 @@
         Plotly.newPlot(id, data, layout, config);
         //this.clickScatterPlot()
       },
+
+      selectedRoomType(props) {
+        this.roomTypes = props
+      },
+      selectedMaximumNights(props) {
+        this.availabilitys = props
+      },
+      selectedNeighbourhoodGroup(props) {
+        this.neighbourhoodGroups = props
+      },
+      save(){
+        this.update_data()
+      },
+      reset(){
+        this.filter_room = 'Select Room Type';
+        this.filter_maxNights = 'Maximum Nights';
+        this.filter_neigh = 'Select Neighbourhood Group';
+        this.roomTypes='';
+        this.availabilitys='';
+        this.neighbourhoodGroups='';
+        this.update_data()
+      }
       
     }
   }

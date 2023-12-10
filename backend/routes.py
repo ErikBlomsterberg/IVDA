@@ -8,6 +8,7 @@ import csv
 
 training_path = 'Data/data.csv'
 df = pd.read_csv(training_path, index_col='id')
+df_clean = pd.read_csv('Data/preprocessed.csv', index_col='id')
 #df = pd.read_csv(training_path)
 modified_ratings = {}
 
@@ -49,9 +50,9 @@ def model_predict():
     # Here we can use either data or preprocessed csv, whatever.
     #y_pred = np.round(y_pred)
     y_pred = np.clip(y_pred, 1, 5)
-    df['rating'] = y_pred
+    df_clean['rating'] = y_pred
     # TODO : Replace ids with existing rating from the user.
-    return json.loads(df.reset_index().to_json(orient="records"))
+    return json.loads(df_clean.reset_index().to_json(orient="records"))
 
 
 @all_routes.route('/model-stats', methods=['GET'])

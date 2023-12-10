@@ -86,9 +86,6 @@ export default {
 },
   data: () => ({
     dialog: false,
-    roomType: '',
-    neighbourhoodGroup: '',
-    availability: '',
     bufferRoomType: '',
     bufferAvailability: '',
     bufferNeighbourhoodGroup: ''
